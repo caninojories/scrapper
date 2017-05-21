@@ -1,0 +1,20 @@
+{
+  "name": "scrapper",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "Jo-Ries Canino",
+  "license": "MIT",
+  "scripts": {
+    "dev": "npm run tsc && nodemon server.js",
+    "tsc": "sudo tsc"
+  },
+  "dependencies": {
+    "casper": "^0.1.1",
+    "casperjs": "^1.1.4",
+    "cheerio": "^0.22.0",
+    "request": "2.81.0"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.18"
+  }
+}

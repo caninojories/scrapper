@@ -1,0 +1,11 @@
+.DS_Store
+.idea
+*debug.log
+**/*.js
+**/*.map
+node_modules
+*.log
+*.error
+*.log.*
+ts-node*
+karma_html
