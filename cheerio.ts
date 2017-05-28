@@ -1,5 +1,23 @@
 import * as cheerio from 'cheerio';
 import * as config from './config';
+import * as json2csv from 'json2csv';
+import * as fs from 'fs';
+var fields = [
+  'plaintiff',
+  'defendant',
+  'caseNumber',
+  'appraisalAmount',
+  'judgementAmount',
+  'startingBid',
+  'parcel',
+  'propertyAddress',
+  'dateOfSale',
+  'saleStatus',
+  'purchasePrice',
+  'purchaser',
+  'assigned',
+  'purchasersAddress'
+];
 import {
   Request
 } from './request';
@@ -54,27 +72,59 @@ export let Cheerio = (html) => {
     }
   });
 
+  console.log('We have ' + item.length + ' items to crawl.');
+  let tempItem = [];
+
   new LooPromise().init(function() {
       return counter < item.length;
   }, function() {
     return new Promise(function(resolve, reject) {
-      // spawn here
+      console.log('Running casperjs for item ' + (counter + 1));
       let casper = spawn('casperjs', ['casper.js', '--input=#' + item[counter].detailedLinkId]);
 
       casper.stdout.on('data', (data) => {
+        console.log('Getting the url from casperjs');
         item[counter].detailedUrl = data.toString();
+        console.log('URL for detailed link is: ' + item[counter].detailedUrl);
         getDetailed(item[counter].detailedUrl)
-        .then(response => {
+        .then((response :any) => {
+          item[counter].purchasePrice     = response.purchasePrice;
+          item[counter].purchaser         = response.purchaser;
+          item[counter].assigned          = response.assigned;
+          item[counter].purchasersAddress = response.purchasersAddress;
+
+          tempItem.push({
+            'plaintiff'       : item[counter].plaintiff,
+            'defendant'       : item[counter].defendant,
+            'caseNumber'      : item[counter].caseNumber,
+            'appraisalAmount' : item[counter].appraisalAmount,
+            'judgementAmount' : item[counter].judgementAmount,
+            'startingBid'     : item[counter].startingBid,
+            'parcel'          : item[counter].parcel,
+            'propertyAddress' : item[counter].propertyAddress,
+            'dateOfSale'      : item[counter].dateOfSale,
+            'saleStatus'      : item[counter].saleStatus,
+            'purchasePrice'   : item[counter].purchasePrice,
+            'purchaser'       : item[counter].purchaser,
+            'assigned'        : item[counter].assigned,
+            'purchasersAddress' : item[counter].purchasersAddress
+          });
+
           casper.kill();
           counter += 1;
           resolve();
+          console.log('=======================================');
         });
       });
     });
   })
   .then(function() {
-
-    console.log('DONE');
+    let csv = json2csv({ data: tempItem, fields: fields });
+    fs.writeFile('file.' + new Date().getTime() + 'csv', csv, function(err) {
+      if (err) throw err;
+      console.log('File Saved');
+      process.exit();
+    });
   });
 };
 
@@ -88,7 +138,6 @@ function getDetailed(url) {
   return new Promise((resolve, reject) => {
     Request(url)
     .then(html => {
-      console.log(url);
       $ = cheerio.load(html);
 
       return tryCatchPurchasePrice($);

@@ -10,6 +10,7 @@ import {
 export class Server {
   constructor() {
     this.start();
+    console.log('Running the Program...');
   }
 
   start() {

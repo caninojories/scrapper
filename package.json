@@ -5,13 +5,13 @@
   "author": "Jo-Ries Canino",
   "license": "MIT",
   "scripts": {
-    "dev": "npm run tsc && nodemon server.js",
-    "tsc": "sudo tsc"
+    "start": "npm run tsc && node server.js",
+    "tsc": "tsc",
+    "postinstall": "yarn global add typescript"
   },
   "dependencies": {
-    "casper": "^0.1.1",
-    "casperjs": "^1.1.4",
-    "cheerio": "^0.22.0",
+    "cheerio": "0.22.0",
+    "json2csv": "3.7.3",
     "request": "2.81.0"
   },
   "devDependencies": {
