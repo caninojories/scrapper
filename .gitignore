@@ -9,3 +9,5 @@ node_modules
 *.log.*
 ts-node*
 karma_html
+file.*
+.*

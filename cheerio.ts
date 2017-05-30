@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio';
 import * as config from './config';
 import * as json2csv from 'json2csv';
 import * as fs from 'fs';
+import * as colors from 'colors';
 var fields = [
   'plaintiff',
   'defendant',
@@ -72,20 +73,29 @@ export let Cheerio = (html) => {
     }
   });
 
-  console.log('We have ' + item.length + ' items to crawl.');
+  console.log(colors.bold.magenta('We have ' + item.length + ' items to crawl.'));
   let tempItem = [];
 
   new LooPromise().init(function() {
       return counter < item.length;
   }, function() {
+    let casper;
     return new Promise(function(resolve, reject) {
-      console.log('Running casperjs for item ' + (counter + 1));
-      let casper = spawn('casperjs', ['casper.js', '--input=#' + item[counter].detailedLinkId], { shell: true });
+      console.log(colors.bold.magenta('Running casperjs for item ' + (counter + 1)));
+      casper = spawn('casperjs', ['casper.js', '--input=#' + item[counter].detailedLinkId], { shell: true });
 
       casper.stdout.on('data', (data) => {
-        console.log('Getting the url from casperjs');
+        console.log(colors.bold.magenta('Getting the url from casperjs'));
         item[counter].detailedUrl = data.toString();
-        console.log('URL for detailed link is: ' + item[counter].detailedUrl);
+        //check if we have detailedUrl
+        if (item[counter].detailedUrl === 'ERROR') {
+          console.log(colors.red.bold('Cannot get DetailedUrl for item ' + (counter + 1)))
+
+          casper.kill();
+          counter += 1;
+          return resolve();
+        }
+        console.log(colors.bold.magenta('URL for detailed link is: ' + item[counter].detailedUrl));
         getDetailed(item[counter].detailedUrl)
         .then((response :any) => {
           item[counter].purchasePrice     = response.purchasePrice;
@@ -113,16 +123,25 @@ export let Cheerio = (html) => {
           casper.kill();
           counter += 1;
           resolve();
-          console.log('=======================================');
+          console.log(colors.bold.green('SUCCESS'));
+          console.log(colors.bold.cyan('======================================='));
         });
       });
-    });
+
+      casper.on('error', (error) => {
+        console.log(colors.bold.red('Failed to start casperjs with the error : ' + error));
+
+        casper.kill();
+        counter += 1;
+        resolve();
+      });
+    })
   })
   .then(function() {
     let csv = json2csv({ data: tempItem, fields: fields });
     fs.writeFile('file.' + new Date().getTime() + 'csv', csv, function(err) {
       if (err) throw err;
-      console.log('File Saved');
+      console.log(colors.bold.underline.green('FILE SAVE'));
       process.exit();
     });
   });
