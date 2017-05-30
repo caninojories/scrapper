@@ -10,6 +10,7 @@
     "postinstall": "yarn global add typescript"
   },
   "dependencies": {
+    "casperjs": "^1.1.4",
     "cheerio": "0.22.0",
     "json2csv": "3.7.3",
     "request": "2.81.0"
