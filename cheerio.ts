@@ -80,7 +80,7 @@ export let Cheerio = (html) => {
   }, function() {
     return new Promise(function(resolve, reject) {
       console.log('Running casperjs for item ' + (counter + 1));
-      let casper = spawn('casperjs', ['casper.js', '--input=#' + item[counter].detailedLinkId]);
+      let casper = spawn('casperjs', ['casper.js', '--input=#' + item[counter].detailedLinkId], { shell: true });
 
       casper.stdout.on('data', (data) => {
         console.log('Getting the url from casperjs');
