@@ -88,7 +88,7 @@ export let Cheerio = (html) => {
         console.log(colors.bold.magenta('Getting the url from casperjs'));
         item[counter].detailedUrl = data.toString();
         //check if we have detailedUrl
-        if (item[counter].detailedUrl === 'ERROR') {
+        if (item[counter].detailedUrl.trim() === 'ERROR') {
           console.log(colors.red.bold('Cannot get DetailedUrl for item ' + (counter + 1)))
 
           casper.kill();
