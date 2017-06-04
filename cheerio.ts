@@ -98,6 +98,7 @@ export let Cheerio = (html) => {
         console.log(colors.bold.magenta('URL for detailed link is: ' + item[counter].detailedUrl));
         getDetailed(item[counter].detailedUrl)
         .then((response :any) => {
+          console.log(response);
           item[counter].purchasePrice     = response.purchasePrice;
           item[counter].purchaser         = response.purchaser;
           item[counter].assigned          = response.assigned;
