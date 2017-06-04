@@ -4,7 +4,8 @@ casper.start('http://www.wcsooh.org/SheriffSales/slsgrid.aspx?srchtype=zip&srchv
 casper.then(function () {
   return this.click(casper.cli.get('input'));
 })
-.then(function() {
+
+casper.then(function() {
   if (this.currentHTTPStatus === 200) {
     console.log(this.getCurrentUrl());
   } else {
