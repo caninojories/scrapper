@@ -30,134 +30,135 @@ import {
 let spawn = require('child_process').spawn;
 
 export let Cheerio = (html, rootUrl) => {
-  let $ = cheerio.load(html);
+  return new Promise ((rootResolve, rootReject) => {
+    let $ = cheerio.load(html);
 
-  let item = [];
-  let counter = 0;
+    let item = [];
+    let counter = 0;
 
-  $('#slsgrid tr').each(function(i, elem) {
-    let thisClass = $(this).attr('class');
+    $('#slsgrid tr').each(function(i, elem) {
+      let thisClass = $(this).attr('class');
 
-    if (thisClass === 'odd' || thisClass === 'even') {
-      let detailedLinkId = $(this).children()[0].children[0].attribs.id;
-      let plaintiff   = $(this).children()[1].children[0].data;
-      let defendant   = $(this).children()[2].children[0].data;
-      let caseNumber  = $(this).children()[3].children[0].data;
-      let appraisalAmount  = $(this).children()[4].children[0].data;
-      let judgementAmount  = $(this).children()[5].children[0].data;
-      let startingBid  = $(this).children()[6].children[0].data;
-      let parcel  = $(this).children()[7].children[0].data.replace(/\s\s+/g, ' ');
-      let propertyAddress;
-      let dateOfSale = $(this).children()[9].children[0].data ? $(this).children()[9].children[0].data : $(this).children()[9].children[1].children[0].data;
-      let saleStatus = $(this).children()[10].children[0].data.replace(/\s\s+/g, ' ');
+      if (thisClass === 'odd' || thisClass === 'even') {
+        let detailedLinkId = $(this).children()[0].children[0].attribs.id;
+        let plaintiff   = $(this).children()[1].children[0].data;
+        let defendant   = $(this).children()[2].children[0].data;
+        let caseNumber  = $(this).children()[3].children[0].data;
+        let appraisalAmount  = $(this).children()[4].children[0].data;
+        let judgementAmount  = $(this).children()[5].children[0].data;
+        let startingBid  = $(this).children()[6].children[0].data;
+        let parcel  = $(this).children()[7].children[0].data.replace(/\s\s+/g, ' ');
+        let propertyAddress;
+        let dateOfSale = $(this).children()[9].children[0].data ? $(this).children()[9].children[0].data : $(this).children()[9].children[1].children[0].data;
+        let saleStatus = $(this).children()[10].children[0].data.replace(/\s\s+/g, ' ');
 
-      if (thisClass === 'even') {
-        propertyAddress = $(this).children()[8].children[1].children[0].children[0].data.replace(/\s\s+/g, ' ') + $(this).children()[8].children[1].children[0].children[2].data.replace(/\s\s+/g, ' ');
-      } else {
-        propertyAddress = $(this).children()[8].children[1].children[0].data.replace(/\s\s+/g, ' ') + $(this).children()[8].children[1].children[2].data.replace(/\s\s+/g, ' ');
-      }
-
-      item.push({
-        detailedLinkId  : detailedLinkId,
-        detailedUrl     : '',
-        plaintiff       : plaintiff,
-        defendant       : defendant,
-        caseNumber      : caseNumber,
-        appraisalAmount : appraisalAmount,
-        judgementAmount : judgementAmount,
-        startingBid     : startingBid,
-        parcel          : parcel,
-        propertyAddress : propertyAddress,
-        dateOfSale      : dateOfSale,
-        saleStatus      : saleStatus
-      });
-    }
-  });
-
-  console.log(colors.bold.magenta('We have ' + item.length + ' items to crawl.'));
-  let tempItem = [];
-
-  new LooPromise().init(function() {
-      return counter < item.length;
-  }, function() {
-    let casper;
-    return new Promise(function(resolve, reject) {
-      console.log(colors.bold.magenta('Running casperjs for item ' + (counter + 1)));
-      console.log(rootUrl);
-      casper = spawn('casperjs', ['casper.js', '--rootUrl="' + rootUrl.toString() + '"', '--input="#' + item[counter].detailedLinkId + '"'], { shell: true });
-
-      casper.stdout.on('data', (data) => {
-        console.log(colors.bold.magenta('Getting the url from casperjs'));
-        item[counter].detailedUrl = data.toString();
-        item[counter].detailedUrl = item[counter].detailedUrl.replace('#', '%23');
-        //check if we have detailedUrl
-        if (item[counter].detailedUrl.trim() === 'ERROR') {
-          console.log(colors.red.bold('Cannot get DetailedUrl for item ' + (counter + 1)))
-
-          casper.kill();
-          counter += 1;
-          return resolve();
+        if (thisClass === 'even') {
+          propertyAddress = $(this).children()[8].children[1].children[0].children[0].data.replace(/\s\s+/g, ' ') + $(this).children()[8].children[1].children[0].children[2].data.replace(/\s\s+/g, ' ');
+        } else {
+          propertyAddress = $(this).children()[8].children[1].children[0].data.replace(/\s\s+/g, ' ') + $(this).children()[8].children[1].children[2].data.replace(/\s\s+/g, ' ');
         }
-        console.log(colors.bold.magenta('URL for detailed link is: ' + item[counter].detailedUrl));
-        getDetailed(item[counter].detailedUrl)
-        .then((response :any) => {
-          console.log(response);
-          item[counter].purchasePrice     = response.purchasePrice;
-          item[counter].purchaser         = response.purchaser;
-          item[counter].assigned          = response.assigned;
-          item[counter].purchasersAddress = response.purchasersAddress;
 
-          tempItem.push({
-            'plaintiff'       : item[counter].plaintiff,
-            'defendant'       : item[counter].defendant,
-            'caseNumber'      : item[counter].caseNumber,
-            'appraisalAmount' : item[counter].appraisalAmount,
-            'judgementAmount' : item[counter].judgementAmount,
-            'startingBid'     : item[counter].startingBid,
-            'parcel'          : item[counter].parcel,
-            'propertyAddress' : item[counter].propertyAddress,
-            'dateOfSale'      : item[counter].dateOfSale,
-            'saleStatus'      : item[counter].saleStatus,
-            'purchasePrice'   : item[counter].purchasePrice,
-            'purchaser'       : item[counter].purchaser,
-            'assigned'        : item[counter].assigned,
-            'purchasersAddress' : item[counter].purchasersAddress
+        item.push({
+          detailedLinkId  : detailedLinkId,
+          detailedUrl     : '',
+          plaintiff       : plaintiff,
+          defendant       : defendant,
+          caseNumber      : caseNumber,
+          appraisalAmount : appraisalAmount,
+          judgementAmount : judgementAmount,
+          startingBid     : startingBid,
+          parcel          : parcel,
+          propertyAddress : propertyAddress,
+          dateOfSale      : dateOfSale,
+          saleStatus      : saleStatus
+        });
+      }
+    });
+
+    console.log(colors.bold.magenta('We have ' + item.length + ' items to crawl.'));
+    let tempItem = [];
+
+    new LooPromise().init(function() {
+        return counter < 2;
+    }, function() {
+      let casper;
+      return new Promise(function(resolve, reject) {
+        console.log(colors.bold.magenta('Running casperjs for item ' + (counter + 1)));
+        casper = spawn('casperjs', ['casper.js', '--rootUrl="' + rootUrl.toString() + '"', '--input="#' + item[counter].detailedLinkId + '"'], { shell: true });
+
+        casper.stdout.on('data', (data) => {
+          console.log(colors.bold.magenta('Getting the url from casperjs'));
+          item[counter].detailedUrl = data.toString();
+          item[counter].detailedUrl = item[counter].detailedUrl.replace('#', '%23');
+          //check if we have detailedUrl
+          if (item[counter].detailedUrl.trim() === 'ERROR') {
+            console.log(colors.red.bold('Cannot get DetailedUrl for item ' + (counter + 1)))
+
+            casper.kill();
+            counter += 1;
+            return resolve();
+          }
+          console.log(colors.bold.magenta('URL for detailed link is: ' + item[counter].detailedUrl));
+          getDetailed(item[counter].detailedUrl)
+          .then((response :any) => {
+            console.log(response);
+            item[counter].purchasePrice     = response.purchasePrice;
+            item[counter].purchaser         = response.purchaser;
+            item[counter].assigned          = response.assigned;
+            item[counter].purchasersAddress = response.purchasersAddress;
+
+            tempItem.push({
+              'plaintiff'       : item[counter].plaintiff,
+              'defendant'       : item[counter].defendant,
+              'caseNumber'      : item[counter].caseNumber,
+              'appraisalAmount' : item[counter].appraisalAmount,
+              'judgementAmount' : item[counter].judgementAmount,
+              'startingBid'     : item[counter].startingBid,
+              'parcel'          : item[counter].parcel,
+              'propertyAddress' : item[counter].propertyAddress,
+              'dateOfSale'      : item[counter].dateOfSale,
+              'saleStatus'      : item[counter].saleStatus,
+              'purchasePrice'   : item[counter].purchasePrice,
+              'purchaser'       : item[counter].purchaser,
+              'assigned'        : item[counter].assigned,
+              'purchasersAddress' : item[counter].purchasersAddress
+            });
+
+            casper.kill();
+            counter += 1;
+            resolve();
+            console.log(colors.bold.green('SUCCESS'));
+            console.log(colors.bold.cyan('======================================='));
           });
+        });
+
+        casper.on('error', (error) => {
+          console.log(colors.bold.red('Failed to start casperjs with the error : ' + error));
 
           casper.kill();
           counter += 1;
           resolve();
-          console.log(colors.bold.green('SUCCESS'));
-          console.log(colors.bold.cyan('======================================='));
         });
-      });
-
-      casper.on('error', (error) => {
-        console.log(colors.bold.red('Failed to start casperjs with the error : ' + error));
-
-        casper.kill();
-        counter += 1;
-        resolve();
-      });
+      })
     })
-  })
-  .then(function() {
-    let csv = json2csv({ data: tempItem, fields: fields });
-    let fileName = 'file.' + new Date().getTime() + 'csv';
-    return new Promise((resolve, reject) => {
-      fs.writeFile(fileName, csv, function(err) {
-        if (err) throw err;
-        console.log(colors.bold.underline.green('FILE SAVE'));
+    .then(function() {
+      let csv = json2csv({ data: tempItem, fields: fields });
+      let fileName = 'file.' + new Date().getTime() + '.csv';
+      console.log(fileName);
+      return new Promise((resolve, reject) => {
+        fs.writeFile(fileName, csv, function(err) {
+          if (err) throw err;
+          console.log(colors.bold.underline.green('FILE SAVE'));
 
-        return resolve(fileName);
-      });
+          return resolve(fileName);
+        });
+      })
     })
-  })
-  .then(fileName => {
-    console.log(fileName);
-    Mail.sendMail(fileName);
+    .then(fileName => {
+      Mail.sendMail(fileName);
 
-    return null;
+      rootResolve();
+    });
   });
 };
 

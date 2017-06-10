@@ -28,7 +28,7 @@ export let sendMail = function SendMail(filename) {
 
 function inputmail(){
   const from = 'steves.scrapper@gmail.com';
-  const to  = 'steve.mcclanahan@gmail.com caninojories@gmail.com';
+  const to  = 'steve.mcclanahan@gmail.com, caninojories@gmail.com';
   const subject  = 'SCRAPPER';
   const text = '';
   const html = '';

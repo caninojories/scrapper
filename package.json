@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "npm run tsc && node app.server.js",
-    "prod": "npm run tsc && pm2 start app.server.js --name SCRAPPER",
+    "prod": "npm run tsc && pm2 start app.server.js --name SCRAPPER -i 1",
     "tsc": "tsc",
     "postinstall": "yarn global add typescript pm2"
   },

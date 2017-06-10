@@ -9,14 +9,18 @@ import {
 
 export class Server {
   constructor(private _rootUrl: any) {
-    this.start();
     console.log('Running the Program...');
   }
 
   start() {
-    Request()
-    .then(response => {
-      Cheerio(response, this._rootUrl);
+    return new Promise((resolve, reject) => {
+      Request()
+      .then(response => {
+         return Cheerio(response, this._rootUrl);
+      })
+      .then(() => {
+        resolve();
+      });
     });
   }
 }

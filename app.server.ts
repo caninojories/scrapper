@@ -35,9 +35,14 @@ app.route('/api/v1/start')
     return counter < body.urls.length;
   }, () => {
     return new Promise((resolve, reject) => {
-      new Server(body.urls[counter]);
-      counter++
-      resolve();
+      let server = new Server(body.urls[counter]);
+
+      server.start()
+      .then(() => {
+        
+        counter++
+        resolve();
+      })
     });
   });
 
