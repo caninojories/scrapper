@@ -5,15 +5,19 @@
   "author": "Jo-Ries Canino",
   "license": "MIT",
   "scripts": {
-    "start": "npm run tsc && node server.js",
+    "start": "npm run tsc && node app.server.js",
+    "prod": "npm run tsc && pm2 start app.server.js --name SCRAPPER",
     "tsc": "tsc",
-    "postinstall": "yarn global add typescript"
+    "postinstall": "yarn global add typescript pm2"
   },
   "dependencies": {
+    "body-parser": "^1.17.2",
     "casperjs": "^1.1.4",
     "cheerio": "0.22.0",
     "color": "^1.0.3",
+    "express": "^4.15.3",
     "json2csv": "3.7.3",
+    "nodemailer": "^4.0.1",
     "request": "2.81.0"
   },
   "devDependencies": {

@@ -8,7 +8,7 @@ import {
 } from './cheerio';
 
 export class Server {
-  constructor() {
+  constructor(private _rootUrl: any) {
     this.start();
     console.log('Running the Program...');
   }
@@ -16,9 +16,7 @@ export class Server {
   start() {
     Request()
     .then(response => {
-      Cheerio(response);
+      Cheerio(response, this._rootUrl);
     });
   }
 }
-
-new Server();

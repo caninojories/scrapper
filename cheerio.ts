@@ -3,6 +3,7 @@ import * as config from './config';
 import * as json2csv from 'json2csv';
 import * as fs from 'fs';
 import * as colors from 'colors';
+import * as Mail from './email';
 var fields = [
   'plaintiff',
   'defendant',
@@ -28,7 +29,7 @@ import {
 
 let spawn = require('child_process').spawn;
 
-export let Cheerio = (html) => {
+export let Cheerio = (html, rootUrl) => {
   let $ = cheerio.load(html);
 
   let item = [];
@@ -82,11 +83,13 @@ export let Cheerio = (html) => {
     let casper;
     return new Promise(function(resolve, reject) {
       console.log(colors.bold.magenta('Running casperjs for item ' + (counter + 1)));
-      casper = spawn('casperjs', ['casper.js', '--input=#' + item[counter].detailedLinkId], { shell: true });
+      console.log(rootUrl);
+      casper = spawn('casperjs', ['casper.js', '--rootUrl="' + rootUrl.toString() + '"', '--input="#' + item[counter].detailedLinkId + '"'], { shell: true });
 
       casper.stdout.on('data', (data) => {
         console.log(colors.bold.magenta('Getting the url from casperjs'));
         item[counter].detailedUrl = data.toString();
+        item[counter].detailedUrl = item[counter].detailedUrl.replace('#', '%23');
         //check if we have detailedUrl
         if (item[counter].detailedUrl.trim() === 'ERROR') {
           console.log(colors.red.bold('Cannot get DetailedUrl for item ' + (counter + 1)))
@@ -140,11 +143,21 @@ export let Cheerio = (html) => {
   })
   .then(function() {
     let csv = json2csv({ data: tempItem, fields: fields });
-    fs.writeFile('file.' + new Date().getTime() + 'csv', csv, function(err) {
-      if (err) throw err;
-      console.log(colors.bold.underline.green('FILE SAVE'));
-      process.exit();
-    });
+    let fileName = 'file.' + new Date().getTime() + 'csv';
+    return new Promise((resolve, reject) => {
+      fs.writeFile(fileName, csv, function(err) {
+        if (err) throw err;
+        console.log(colors.bold.underline.green('FILE SAVE'));
+
+        return resolve(fileName);
+      });
+    })
+  })
+  .then(fileName => {
+    console.log(fileName);
+    Mail.sendMail(fileName);
+
+    return null;
   });
 };
 
