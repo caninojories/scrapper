@@ -92,8 +92,16 @@ export let Cheerio = (html, rootUrl) => {
           console.log(colors.bold.magenta('Getting the url from casperjs'));
           console.log('DetailedUrl Here');
           console.log(detailedUrl.toString());
+          console.log(item[counter].detailedUrl === rootUrl.toString());
           item[counter].detailedUrl = detailedUrl.toString();
           item[counter].detailedUrl = item[counter].detailedUrl.replace('#', '%23');
+
+          if (item[counter].detailedUrl.trim() === rootUrl.trim()) {
+            //call again the item
+            casper.kill();
+            return resolve();
+          }
+
           //check if we have detailedUrl
           if (item[counter].detailedUrl.trim() === 'ERROR') {
             console.log(colors.red.bold('Cannot get DetailedUrl for item ' + (counter + 1)))
@@ -102,6 +110,7 @@ export let Cheerio = (html, rootUrl) => {
             counter += 1;
             return resolve();
           }
+
           console.log(colors.bold.magenta('URL for detailed link is: ' + item[counter].detailedUrl));
           getDetailed(item[counter].detailedUrl)
           .then((response :any) => {
