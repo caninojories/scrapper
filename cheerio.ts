@@ -86,7 +86,7 @@ export let Cheerio = (html, rootUrl) => {
         console.log(colors.bold.magenta('Running casperjs for item ' + (counter + 1)));
         casper = spawn('casperjs', ['casper.js', '--rootUrl="' + rootUrl.toString() + '"', '--input="#' + item[counter].detailedLinkId + '"'], { shell: true });
 
-        let detailedUrl;
+        let detailedUrl = '';
 
         casper.stdout.on('end', () => {
           console.log(colors.bold.magenta('Getting the url from casperjs'));
