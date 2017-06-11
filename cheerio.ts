@@ -86,13 +86,13 @@ export let Cheerio = (html, rootUrl) => {
         console.log(colors.bold.magenta('Running casperjs for item ' + (counter + 1)));
         casper = spawn('casperjs', ['casper.js', '--rootUrl="' + rootUrl.toString() + '"', '--input="#' + item[counter].detailedLinkId + '"'], { shell: true });
 
-        let data;
+        let detailedUrl;
 
         casper.stdout.on('end', () => {
           console.log(colors.bold.magenta('Getting the url from casperjs'));
-          console.log('Data Here');
-          console.log(data);
-          item[counter].detailedUrl = data.toString();
+          console.log('DetailedUrl Here');
+          console.log(detailedUrl);
+          item[counter].detailedUrl = detailedUrl.toString();
           item[counter].detailedUrl = item[counter].detailedUrl.replace('#', '%23');
           //check if we have detailedUrl
           if (item[counter].detailedUrl.trim() === 'ERROR') {
@@ -137,7 +137,7 @@ export let Cheerio = (html, rootUrl) => {
         });
 
         casper.stdout.on('data', (data) => {
-          data = data;
+          detailedUrl = data;
         });
 
         casper.on('error', (error) => {
