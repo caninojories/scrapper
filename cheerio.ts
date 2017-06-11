@@ -93,6 +93,7 @@ export let Cheerio = (html, rootUrl) => {
           console.log('DetailedUrl Here');
           console.log(detailedUrl.toString());
           console.log(item[counter].detailedUrl === rootUrl.toString());
+          console.log(item[counter].detailedLinkId);
           item[counter].detailedUrl = detailedUrl.toString();
           item[counter].detailedUrl = item[counter].detailedUrl.replace('#', '%23');
 
