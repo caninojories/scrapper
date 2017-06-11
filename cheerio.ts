@@ -86,8 +86,12 @@ export let Cheerio = (html, rootUrl) => {
         console.log(colors.bold.magenta('Running casperjs for item ' + (counter + 1)));
         casper = spawn('casperjs', ['casper.js', '--rootUrl="' + rootUrl.toString() + '"', '--input="#' + item[counter].detailedLinkId + '"'], { shell: true });
 
-        casper.stdout.on('data', (data) => {
+        let data;
+
+        casper.stdout.on('end', () => {
           console.log(colors.bold.magenta('Getting the url from casperjs'));
+          console.log('Data Here');
+          console.log(data);
           item[counter].detailedUrl = data.toString();
           item[counter].detailedUrl = item[counter].detailedUrl.replace('#', '%23');
           //check if we have detailedUrl
@@ -130,6 +134,10 @@ export let Cheerio = (html, rootUrl) => {
             console.log(colors.bold.green('SUCCESS'));
             console.log(colors.bold.cyan('======================================='));
           });
+        });
+
+        casper.stdout.on('data', (data) => {
+          data = data;
         });
 
         casper.on('error', (error) => {
