@@ -79,7 +79,7 @@ export let Cheerio = (html, rootUrl) => {
     let tempItem = [];
 
     new LooPromise().init(function() {
-        return counter < 2;
+        return counter < item.length;
     }, function() {
       let casper;
       return new Promise(function(resolve, reject) {
