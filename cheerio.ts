@@ -91,7 +91,7 @@ export let Cheerio = (html, rootUrl) => {
         casper.stdout.on('end', () => {
           console.log(colors.bold.magenta('Getting the url from casperjs'));
           console.log('DetailedUrl Here');
-          console.log(detailedUrl);
+          console.log(detailedUrl.toString());
           item[counter].detailedUrl = detailedUrl.toString();
           item[counter].detailedUrl = item[counter].detailedUrl.replace('#', '%23');
           //check if we have detailedUrl
