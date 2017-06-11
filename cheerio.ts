@@ -137,7 +137,7 @@ export let Cheerio = (html, rootUrl) => {
         });
 
         casper.stdout.on('data', (data) => {
-          detailedUrl = data;
+          detailedUrl += data;
         });
 
         casper.on('error', (error) => {
