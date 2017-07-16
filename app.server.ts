@@ -35,11 +35,15 @@ app.route('/api/v1/start')
     return counter < body.urls.length;
   }, () => {
     return new Promise((resolve, reject) => {
+      if (typeof body.urls === 'string') {
+        body.urls = JSON.parse(body.urls);
+      }
+
       let server = new Server(body.urls[counter]);
 
       server.start()
       .then(() => {
-        
+
         counter++
         resolve();
       })

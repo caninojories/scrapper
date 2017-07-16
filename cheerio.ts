@@ -162,7 +162,6 @@ export let Cheerio = (html, rootUrl) => {
     .then(function() {
       let csv = json2csv({ data: tempItem, fields: fields });
       let fileName = 'file.' + new Date().getTime() + '.csv';
-      console.log(fileName);
       return new Promise((resolve, reject) => {
         fs.writeFile(fileName, csv, function(err) {
           if (err) throw err;
